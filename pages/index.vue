@@ -1,7 +1,5 @@
 <template>
   <div class="h-full w-full overflow-x-hidden">
-    <Header />
-
     <div class="flex justify-center px-5 py-24 md:py-32">
       <div
         class="grid w-full max-w-screen-xl grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8"
@@ -19,7 +17,6 @@
 
 <script setup lang="ts">
 import { generateClient } from "aws-amplify/api";
-import Header from "~/components/Header.vue";
 import { getCharacterConversations } from "@/src/graphql/queries";
 
 const client = generateClient();
