@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-screen w-screen overflow-x-hidden bg-[#0c1317]">
     <Header />
     <slot />
   </div>

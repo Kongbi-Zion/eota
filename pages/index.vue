@@ -1,6 +1,19 @@
 <template>
-  <div class="h-screen w-screen bg-[#0c1317]">
+  <div class="h-full w-full overflow-x-hidden">
     <Header />
+
+    <div class="flex justify-center px-5 py-24 md:py-32">
+      <div
+        class="grid w-full max-w-screen-xl grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8"
+      >
+        <CardItem name="Chapters" />
+        <CardItem name="Characters" />
+        <CardItem name="Conversations" />
+        <CardItem name="options" />
+        <CardItem name="Puzzles" />
+        <CardItem name="Relics" />
+      </div>
+    </div>
   </div>
 </template>
 

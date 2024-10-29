@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed start-0 top-0 z-20 w-full bg-transparent">
+  <nav class="fixed start-0 top-0 z-20 w-full bg-[#0c1317]">
     <div
       class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between border-b border-gray-600"
     >
