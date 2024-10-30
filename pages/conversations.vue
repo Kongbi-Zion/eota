@@ -10,16 +10,17 @@
             >
               <div class="h-full w-full overflow-y-auto">
                 <div v-if="conversations.length != 0" class="w-full space-y-5">
-                  <NuxtLink
+                  <div
                     v-for="conversation in conversations"
                     :key="conversation.id"
-                    :to="`/conversation/${conversation.id}`"
                     class="rounded-lg border border-gray-600 px-5 py-3"
                   >
-                    <p>
-                      {{ conversation.message }}
-                    </p>
-                  </NuxtLink>
+                    <NuxtLink :to="`/conversation/${conversation.id}`">
+                      <p>
+                        {{ conversation.message }}
+                      </p>
+                    </NuxtLink>
+                  </div>
                 </div>
                 <div v-else>
                   Looks like it's empty here! Use the form on the right to start
