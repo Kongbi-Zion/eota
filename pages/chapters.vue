@@ -1,12 +1,12 @@
 <template>
   <div class="h-full w-full overflow-x-hidden text-gray-50">
     <div class="flex justify-center px-5 py-24 md:py-32">
-      <div class="w-full max-w-screen-xl px-5">
+      <div class="w-full max-w-screen-xl md:px-5">
         <div>
           <h1 class="mb-5 text-lg font-bold">Chapters</h1>
-          <div class="flex gap-5">
+          <div class="gap-5 max-md:space-y-8 md:flex">
             <div
-              class="no-scrollbar h-full max-h-[70vh] min-h-[70vh] w-2/3 overflow-y-auto rounded border border-gray-600 p-5"
+              class="no-scrollbar h-full max-h-[70vh] min-h-[70vh] w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-2/3"
             >
               <div class="h-full w-full space-y-5 overflow-y-auto">
                 <div class="rounded-lg border border-gray-600 px-5 py-3">
@@ -60,7 +60,7 @@
               </div>
             </div>
             <div
-              class="max-h-fit w-1/3 overflow-y-auto rounded border border-gray-600 p-5"
+              class="max-h-fit w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-1/3"
             >
               <div class="w-full">
                 <div class="mb-6 text-center text-lg font-bold">
@@ -136,10 +136,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { generateClient } from "aws-amplify/api";
-import { createChapter } from "~/src/graphql/mutations";
 
-const client = generateClient();
 const isLoading = ref(false);
 const pending = ref(false);
 const error = ref("");
@@ -148,9 +145,8 @@ const store = useStatesStore();
 
 const handleCreate = async () => {
   pending.value = true;
-
-  const { data, error } = await useAsyncData("user", () =>
-    store.createChap({ chapterTitle: chapterTitle.value }).then(() => {
+  const { data, error } = await useAsyncData("chapter", () =>
+    store.handleCreateChapter({ chapterTitle: chapterTitle.value }).then(() => {
       pending.value = false;
       //   if (createUserResult.success) {
       //     navigateTo("/dashboard");

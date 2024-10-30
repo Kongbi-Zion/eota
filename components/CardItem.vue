@@ -1,9 +1,9 @@
 <template>
   <NuxtLink
     :to="`/${name}`"
-    class="h-28 rounded-md bg-gradient-to-tr from-gray-300 p-5 hover:cursor-pointer lg:h-40 lg:bg-gradient-to-r"
+    class="flex h-28 items-center justify-center rounded-md border border-gray-600 p-5 hover:cursor-pointer lg:h-40 lg:bg-gradient-to-r"
   >
-    <p class="text-lg font-bold">{{ name }}</p>
+    <p class="text-lg font-bold text-gray-50">{{ name }}</p>
   </NuxtLink>
 </template>
 
