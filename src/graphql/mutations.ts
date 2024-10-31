@@ -104,6 +104,28 @@ export const createChapter =
     APITypes.CreateChapterMutationVariables,
     APITypes.CreateChapterMutation
   >;
+export const createCharacter =
+  /* GraphQL */ `mutation CreateCharacter($input: CreateCharacterInput!) {
+  createCharacter(input: $input) {
+    id
+    characterName
+    characterBackstory
+    role
+    conversation {
+      id
+      message
+      conversationId
+      chapterId
+      characterId
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<
+    APITypes.CreateCharacterMutationVariables,
+    APITypes.CreateCharacterMutation
+  >;
 export const sendOption =
   /* GraphQL */ `mutation SendOption($input: OptionInput!) {
   sendOption(input: $input)

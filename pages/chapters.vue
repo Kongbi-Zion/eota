@@ -6,59 +6,71 @@
           <h1 class="mb-5 text-lg font-bold">Chapters</h1>
           <div class="gap-5 max-md:space-y-8 md:flex">
             <div
-              class="no-scrollbar h-full max-h-[70vh] min-h-[70vh] w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-2/3"
+              class="no-scrollbar h-full min-h-[70vh] w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-2/3"
             >
-              <div class="h-full w-full space-y-5 overflow-y-auto">
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
+              <div class="h-full w-full overflow-y-auto">
+                <div v-if="chapters.length != 0" class="w-full space-y-5">
+                  <div
+                    v-for="chapter in chapters"
+                    :key="chapter.id"
+                    class="rounded-lg border border-gray-600 px-5 py-3"
+                  >
+                    <NuxtLink :to="`/conversation/${chapter.id}`">
+                      <p>
+                        {{ chapter.chapterTitle }}
+                      </p>
+                    </NuxtLink>
+                  </div>
                 </div>
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
-                </div>
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
-                </div>
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
-                </div>
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
-                </div>
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
-                </div>
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
-                </div>
-                <div class="rounded-lg border border-gray-600 px-5 py-3">
-                  <p>
-                    A Journey Through the Whispers of Memory and the Echoes of
-                    Lost Ambitions
-                  </p>
+                <div v-else>
+                  <div v-if="!isLoading && chapters.length == 0">
+                    Looks like it's empty here! Use the form on the right to
+                    start adding chapters.
+                  </div>
+                  <div v-else>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5"
+                      viewBox="0 0 24 24"
+                    >
+                      <g>
+                        <circle cx="3" cy="12" r="2" fill="currentColor" />
+                        <circle cx="21" cy="12" r="2" fill="currentColor" />
+                        <circle cx="12" cy="21" r="2" fill="currentColor" />
+                        <circle cx="12" cy="3" r="2" fill="currentColor" />
+                        <circle cx="5.64" cy="5.64" r="2" fill="currentColor" />
+                        <circle
+                          cx="18.36"
+                          cy="18.36"
+                          r="2"
+                          fill="currentColor"
+                        />
+                        <circle
+                          cx="5.64"
+                          cy="18.36"
+                          r="2"
+                          fill="currentColor"
+                        />
+                        <circle
+                          cx="18.36"
+                          cy="5.64"
+                          r="2"
+                          fill="currentColor"
+                        />
+                        <animateTransform
+                          attributeName="transform"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                          type="rotate"
+                          values="0 12 12;360 12 12"
+                        />
+                      </g>
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
+
             <div
               class="max-h-fit w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-1/3"
             >
@@ -67,14 +79,8 @@
                   <p>Create chapter</p>
                 </div>
 
-                <div class="-mt-2.5 mb-2 flex w-full flex-wrap space-y-2">
+                <div class="mb-2 flex w-full flex-wrap space-y-2">
                   <div class="mb-2 w-full">
-                    <label
-                      class="mb-2.5 block text-base font-bold tracking-wide"
-                      for="group_name"
-                    >
-                      Chapter Title
-                    </label>
                     <input
                       id="chapterTitle"
                       type="text"
@@ -82,7 +88,7 @@
                       v-model="chapterTitle"
                       class="w-full rounded border bg-transparent px-4 py-3 font-normal leading-tight focus:outline-none"
                       :class="error ? 'border-red-500' : 'border-gray-600'"
-                      placeholder="Enter chapter title"
+                      placeholder="Chapter Title"
                     />
                     <p
                       v-if="error"
@@ -95,13 +101,13 @@
 
                 <div class="mt-6">
                   <button
-                    :disabled="isLoading"
+                    :disabled="pending"
                     type="submit"
                     class="flex w-full items-center justify-center rounded bg-gray-600 px-7 py-3 text-center text-sm font-bold leading-snug text-white shadow-md transition duration-150 ease-in-out active:shadow-lg"
                     @click="handleCreate()"
                   >
                     <svg
-                      v-if="isLoading"
+                      v-if="pending"
                       aria-hidden="true"
                       role="isLoading"
                       class="mr-1 inline h-3.5 w-3.5 animate-spin"
@@ -140,19 +146,25 @@ import { ref } from "vue";
 const isLoading = ref(false);
 const pending = ref(false);
 const error = ref("");
+
 const chapterTitle = ref("");
 const store = useStatesStore();
+const chapters = computed(() => store.chapters);
+
+onMounted(async () => {
+  if (chapters.value.length == 0) {
+    isLoading.value = true;
+    store.listChapters().then(() => {
+      isLoading.value = false;
+    });
+  }
+});
 
 const handleCreate = async () => {
   pending.value = true;
-  const { data, error } = await useAsyncData("chapter", () =>
-    store.handleCreateChapter({ chapterTitle: chapterTitle.value }).then(() => {
-      pending.value = false;
-      //   if (createUserResult.success) {
-      //     navigateTo("/dashboard");
-      //   }
-    }),
-  );
+  store.handleCreateChapter({ chapterTitle: chapterTitle.value }).then(() => {
+    pending.value = false;
+  });
 };
 </script>
 

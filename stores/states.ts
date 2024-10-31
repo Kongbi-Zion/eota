@@ -1,31 +1,39 @@
 // Dependencies ===============
 import { createChapter, createConversation } from "~/src/graphql/mutations";
 import { generateClient } from "aws-amplify/api";
-import type {
-  CreateChapterInput,
-  CreateConversationInput,
+import {
+  type Character,
+  type Chapter,
+  type CreateChapterInput,
+  type CreateConversationInput,
+  type Conversation,
 } from "~/src/types/amplify";
 import {
   getChapter,
   getChapterConversations,
+  getChapters,
+  getCharacter,
   getCharacterConversations,
+  getCharacters,
 } from "~/src/graphql/queries";
 export const useStatesStore = defineStore("states", () => {
+  // Types =====================
+
+  type NewCharacterConversationType = Conversation & {
+    characterName: string;
+  };
+
+  type CharacterConversationsCashType = {
+    characterId: string;
+    characterConversations: NewCharacterConversationType[];
+  };
+
   // State =====================
   const client = generateClient();
-  const chapters = ref([
-    {
-      chapterId: "32eb6c65-892f-40fa-b108-b3bec9347c26",
-      chapterTitle: "CHAPTER ONE",
-    },
-  ]);
-  const characters = ref([
-    {
-      characterId: "1b280be2-6e4f-4483-9b15-f4126b39de4a",
-      characterName: "Anonymous",
-    },
-  ]);
-  const characterConversations = ref<any>([]);
+  const chapters = ref<Chapter[]>([]);
+  const characters = ref<Character[]>([]);
+  const characterConversations = ref<NewCharacterConversationType[]>([]);
+  const characterConversationsCash = ref<CharacterConversationsCashType[]>([]);
 
   // Actions ====================
   const handleCreateChapter = async (input: CreateChapterInput) => {
@@ -36,7 +44,7 @@ export const useStatesStore = defineStore("states", () => {
           input,
         },
       });
-      console.log("result: ", result);
+      chapters.value.push(result.data.createChapter);
       return { success: true, user: result.data.createChapter };
     } catch (error) {
       console.log("error: ", error);
@@ -51,7 +59,26 @@ export const useStatesStore = defineStore("states", () => {
           input,
         },
       });
-      characterConversations.value.push(result.data.createConversation);
+
+      const characterId = result.data.createConversation.characterId;
+
+      const result2 = await client.graphql({
+        query: getCharacter,
+        variables: {
+          characterId: characterId,
+        },
+      });
+
+      characterConversations.value.push({
+        ...result.data.createConversation,
+        characterName: result2.data.getCharacter.characterName,
+      });
+
+      // characterConversationsCash.value[characterId] = {
+      //   ...result.data.createConversation,
+      //   characterName: result2.data.getCharacter.characterName,
+      // }
+
       console.log("result: ", result.data.createConversation);
       return { success: true, user: result.data.createConversation };
     } catch (error) {
@@ -59,24 +86,71 @@ export const useStatesStore = defineStore("states", () => {
       return { success: false, error: error };
     }
   };
-  const listCharacterConversations = async () => {
+
+  const listCharacterConversations = async (characterId: string) => {
+    const conversations = [];
+    characterConversations.value = [];
     try {
       const result = await client.graphql({
         query: getCharacterConversations,
         variables: {
-          characterId: "1b280be2-6e4f-4483-9b15-f4126b39de4a",
+          characterId: characterId,
           limit: 10,
         },
       });
-      characterConversations.value =
-        result.data.getCharacterConversations.items;
 
-      console.log(
-        "characterConversations.value: ",
-        characterConversations.value,
-      );
+      for (const conversation of result.data.getCharacterConversations.items) {
+        const result = await client.graphql({
+          query: getCharacter,
+          variables: {
+            characterId: conversation.characterId,
+          },
+        });
+
+        conversations.push({
+          ...conversation,
+          characterName: result.data.getCharacter.characterName,
+        });
+
+        characterConversationsCash.value.push({
+          characterId: conversation.characterId,
+          characterConversations: conversations,
+        });
+      }
+
+      characterConversations.value = conversations;
 
       return { success: true, conversations: characterConversations.value };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
+  const listChapters = async () => {
+    try {
+      const result = await client.graphql({
+        query: getChapters,
+        variables: {
+          limit: 100,
+        },
+      });
+      chapters.value = result.data.getChapters.items;
+      return { success: true, conversations: chapters.value };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
+  const listCharacters = async () => {
+    try {
+      const result = await client.graphql({
+        query: getCharacters,
+        variables: {
+          limit: 100,
+        },
+      });
+      characters.value = result.data.getCharacters.items;
+      return { success: true, conversations: chapters.value };
     } catch (error) {
       console.log("error: ", error);
       return { success: false, error: error };
@@ -86,6 +160,9 @@ export const useStatesStore = defineStore("states", () => {
   return {
     chapters,
     characters,
+    listChapters,
+    listCharacters,
+    characterConversationsCash,
     characterConversations,
     handleCreateChapter,
     handleCreateConversation,

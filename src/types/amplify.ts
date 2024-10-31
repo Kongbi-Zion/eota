@@ -110,6 +110,28 @@ export type Chapter = {
   chapterTitle: string;
 };
 
+export type CreateCharacterInput = {
+  characterName: string;
+  characterBackstory: string;
+  role: CHARACTER_ROLE;
+};
+
+export enum CHARACTER_ROLE {
+  LIBRARIAN = "LIBRARIAN",
+  GUIDE = "GUIDE",
+  MAYOR = "MAYOR",
+  HISTORIAN_PROFESSOR = "HISTORIAN_PROFESSOR",
+}
+
+export type Character = {
+  __typename: "Character";
+  id: string;
+  characterName: string;
+  characterBackstory: string;
+  role: CHARACTER_ROLE;
+  conversation?: Array<Conversation> | null;
+};
+
 export type OptionInput = {
   nextStepType: string;
   conversationId: string;
@@ -144,9 +166,25 @@ export type Conversations = {
   items: Array<Conversation>;
 };
 
+export type Puzzles = {
+  __typename: "Puzzles";
+  items: Array<Puzzle>;
+};
+
 export type Options = {
   __typename: "Options";
   items: Array<Option>;
+};
+
+export type Chapters = {
+  __typename: "Chapters";
+  nextToken?: string | null;
+  items: Array<Chapter>;
+};
+
+export type Characters = {
+  __typename: "Characters";
+  items: Array<Character>;
 };
 
 export type CreatePlayerAccountMutationVariables = {
@@ -245,6 +283,28 @@ export type CreateChapterMutation = {
   };
 };
 
+export type CreateCharacterMutationVariables = {
+  input: CreateCharacterInput;
+};
+
+export type CreateCharacterMutation = {
+  createCharacter: {
+    __typename: "Character";
+    id: string;
+    characterName: string;
+    characterBackstory: string;
+    role: CHARACTER_ROLE;
+    conversation?: Array<{
+      __typename: "Conversation";
+      id: string;
+      message: string;
+      conversationId: string;
+      chapterId: string;
+      characterId: string;
+    }> | null;
+  };
+};
+
 export type SendOptionMutationVariables = {
   input: OptionInput;
 };
@@ -321,6 +381,47 @@ export type GetChapterConversationsQuery = {
   };
 };
 
+export type GetPuzzleQueryVariables = {
+  puzzleId: string;
+};
+
+export type GetPuzzleQuery = {
+  getPuzzle: {
+    __typename: "Puzzle";
+    id: string;
+    puzzleId: string;
+    puzzleName: string;
+    puzzleType: PUZZLETYPE;
+    encryptedMessage: string;
+    decryptedMessage: string;
+    hint: string;
+    puzzleDescription: string;
+    chapterId: string;
+  };
+};
+
+export type GetPuzzlesQueryVariables = {
+  limit: number;
+};
+
+export type GetPuzzlesQuery = {
+  getPuzzles: {
+    __typename: "Puzzles";
+    items: Array<{
+      __typename: "Puzzle";
+      id: string;
+      puzzleId: string;
+      puzzleName: string;
+      puzzleType: PUZZLETYPE;
+      encryptedMessage: string;
+      decryptedMessage: string;
+      hint: string;
+      puzzleDescription: string;
+      chapterId: string;
+    }>;
+  };
+};
+
 export type GetConversationOptionsQueryVariables = {
   conversationId: string;
 };
@@ -343,7 +444,7 @@ export type GetConversationOptionsQuery = {
 };
 
 export type GetChapterQueryVariables = {
-  id: string;
+  chapterId: string;
 };
 
 export type GetChapterQuery = {
@@ -351,6 +452,60 @@ export type GetChapterQuery = {
     __typename: "Chapter";
     id: string;
     chapterTitle: string;
+  };
+};
+
+export type GetChaptersQueryVariables = {
+  limit: number;
+  nextToken?: string | null;
+};
+
+export type GetChaptersQuery = {
+  getChapters: {
+    __typename: "Chapters";
+    nextToken?: string | null;
+    items: Array<{
+      __typename: "Chapter";
+      id: string;
+      chapterTitle: string;
+    }>;
+  };
+};
+
+export type GetCharacterQueryVariables = {
+  characterId: string;
+};
+
+export type GetCharacterQuery = {
+  getCharacter: {
+    __typename: "Character";
+    id: string;
+    characterName: string;
+    characterBackstory: string;
+    role: CHARACTER_ROLE;
+    conversation?: Array<{
+      __typename: "Conversation";
+      id: string;
+      message: string;
+      conversationId: string;
+      chapterId: string;
+      characterId: string;
+    }> | null;
+  };
+};
+
+export type GetCharactersQueryVariables = {};
+
+export type GetCharactersQuery = {
+  getCharacters: {
+    __typename: "Characters";
+    items: Array<{
+      __typename: "Character";
+      id: string;
+      characterName: string;
+      characterBackstory: string;
+      role: CHARACTER_ROLE;
+    }>;
   };
 };
 

@@ -66,6 +66,42 @@ export const getChapterConversations =
     APITypes.GetChapterConversationsQueryVariables,
     APITypes.GetChapterConversationsQuery
   >;
+export const getPuzzle = /* GraphQL */ `query GetPuzzle($puzzleId: String!) {
+  getPuzzle(puzzleId: $puzzleId) {
+    id
+    puzzleId
+    puzzleName
+    puzzleType
+    encryptedMessage
+    decryptedMessage
+    hint
+    puzzleDescription
+    chapterId
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.GetPuzzleQueryVariables, APITypes.GetPuzzleQuery>;
+export const getPuzzles = /* GraphQL */ `query GetPuzzles($limit: Int!) {
+  getPuzzles(limit: $limit) {
+    items {
+      id
+      puzzleId
+      puzzleName
+      puzzleType
+      encryptedMessage
+      decryptedMessage
+      hint
+      puzzleDescription
+      chapterId
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetPuzzlesQueryVariables,
+  APITypes.GetPuzzlesQuery
+>;
 export const getConversationOptions =
   /* GraphQL */ `query GetConversationOptions($conversationId: String!) {
   getConversationOptions(conversationId: $conversationId) {
@@ -87,8 +123,8 @@ export const getConversationOptions =
     APITypes.GetConversationOptionsQueryVariables,
     APITypes.GetConversationOptionsQuery
   >;
-export const getChapter = /* GraphQL */ `query GetChapter($id: String!) {
-  getChapter(id: $id) {
+export const getChapter = /* GraphQL */ `query GetChapter($chapterId: String!) {
+  getChapter(chapterId: $chapterId) {
     id
     chapterTitle
     __typename
@@ -97,4 +133,58 @@ export const getChapter = /* GraphQL */ `query GetChapter($id: String!) {
 ` as GeneratedQuery<
   APITypes.GetChapterQueryVariables,
   APITypes.GetChapterQuery
+>;
+export const getChapters =
+  /* GraphQL */ `query GetChapters($limit: Int!, $nextToken: String) {
+  getChapters(limit: $limit, nextToken: $nextToken) {
+    nextToken
+    items {
+      id
+      chapterTitle
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedQuery<
+    APITypes.GetChaptersQueryVariables,
+    APITypes.GetChaptersQuery
+  >;
+export const getCharacter =
+  /* GraphQL */ `query GetCharacter($characterId: String!) {
+  getCharacter(characterId: $characterId) {
+    id
+    characterName
+    characterBackstory
+    role
+    conversation {
+      id
+      message
+      conversationId
+      chapterId
+      characterId
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedQuery<
+    APITypes.GetCharacterQueryVariables,
+    APITypes.GetCharacterQuery
+  >;
+export const getCharacters = /* GraphQL */ `query GetCharacters {
+  getCharacters {
+    items {
+      id
+      characterName
+      characterBackstory
+      role
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetCharactersQueryVariables,
+  APITypes.GetCharactersQuery
 >;
