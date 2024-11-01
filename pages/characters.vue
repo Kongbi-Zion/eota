@@ -1,73 +1,65 @@
 <template>
-  <div class="h-full w-full overflow-x-hidden text-gray-50">
+  <div class="h-full w-full overflow-x-hidden text-gray-400">
     <div class="flex justify-center px-5 py-24 md:py-32">
       <div class="w-full max-w-screen-xl md:px-5">
         <div>
-          <h1 class="mb-5 text-lg font-bold">Characters</h1>
+          <h1 class="mb-5 text-lg font-bold text-gray-50">Characters</h1>
           <div class="gap-5 max-md:space-y-8 md:flex">
             <div
               class="no-scrollbar h-full min-h-[70vh] w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-2/3"
             >
               <div class="h-full w-full overflow-y-auto">
-                <div v-if="characters.length != 0" class="w-full space-y-5">
+                <div class="w-full space-y-5">
                   <div
                     v-for="character in characters"
                     :key="character.id"
                     class="rounded-lg border border-gray-600 px-5 py-3"
                   >
-                    <NuxtLink :to="`/conversation/${character.id}`">
+                    <NuxtLink
+                      :to="`/conversation/${character.id}`"
+                      class="space-y-2"
+                    >
                       <p>
-                        {{ character.characterName }}
+                        <span class="text-gray-50">Name: </span
+                        >{{ character.characterName }}
                       </p>
+                      <p>
+                        <span class="text-gray-50">Role: </span
+                        >{{ character.role }}
+                      </p>
+                      <p class="text-gray-50">Character Backstory:</p>
+                      <p>{{ character.characterBackstory }}</p>
                     </NuxtLink>
                   </div>
                 </div>
-                <div v-else>
-                  <div v-if="!isLoading && characters.length == 0">
-                    Looks like it's empty here! Use the form on the right to
-                    start adding characters.
-                  </div>
-                  <div v-else>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-5"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle cx="4" cy="12" r="3" fill="currentColor">
-                        <animate
-                          id="svgSpinners3DotsBounce0"
-                          attributeName="cy"
-                          begin="0;svgSpinners3DotsBounce1.end+0.25s"
-                          calcMode="spline"
-                          dur="0.6s"
-                          keySplines=".33,.66,.66,1;.33,0,.66,.33"
-                          values="12;6;12"
-                        />
-                      </circle>
-                      <circle cx="12" cy="12" r="3" fill="currentColor">
-                        <animate
-                          attributeName="cy"
-                          begin="svgSpinners3DotsBounce0.begin+0.1s"
-                          calcMode="spline"
-                          dur="0.6s"
-                          keySplines=".33,.66,.66,1;.33,0,.66,.33"
-                          values="12;6;12"
-                        />
-                      </circle>
-                      <circle cx="20" cy="12" r="3" fill="currentColor">
-                        <animate
-                          id="svgSpinners3DotsBounce1"
-                          attributeName="cy"
-                          begin="svgSpinners3DotsBounce0.begin+0.2s"
-                          calcMode="spline"
-                          dur="0.6s"
-                          keySplines=".33,.66,.66,1;.33,0,.66,.33"
-                          values="12;6;12"
-                        />
-                      </circle>
-                    </svg>
-                  </div>
+                <div v-if="!isLoading && characters.length == 0">
+                  Looks like it's empty here! Use the form on the right to start
+                  adding characters.
                 </div>
+                <svg
+                  v-if="isLoading"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5"
+                  viewBox="0 0 24 24"
+                >
+                  <g>
+                    <circle cx="3" cy="12" r="2" fill="currentColor" />
+                    <circle cx="21" cy="12" r="2" fill="currentColor" />
+                    <circle cx="12" cy="21" r="2" fill="currentColor" />
+                    <circle cx="12" cy="3" r="2" fill="currentColor" />
+                    <circle cx="5.64" cy="5.64" r="2" fill="currentColor" />
+                    <circle cx="18.36" cy="18.36" r="2" fill="currentColor" />
+                    <circle cx="5.64" cy="18.36" r="2" fill="currentColor" />
+                    <circle cx="18.36" cy="5.64" r="2" fill="currentColor" />
+                    <animateTransform
+                      attributeName="transform"
+                      dur="1.5s"
+                      repeatCount="indefinite"
+                      type="rotate"
+                      values="0 12 12;360 12 12"
+                    />
+                  </g>
+                </svg>
               </div>
             </div>
 
@@ -75,90 +67,84 @@
               class="max-h-fit w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-1/3"
             >
               <div class="w-full">
-                <div class="mb-7 mt-2 text-center text-lg font-bold">
+                <div
+                  class="mb-7 mt-2 text-center text-lg font-bold text-gray-50"
+                >
                   <p>Add Character</p>
                 </div>
 
                 <div class="mb-2 flex w-full flex-wrap space-y-5">
                   <div class="w-full">
-                    <select
-                      id="chapterId"
+                    <input
+                      id="characterName"
                       type="text"
-                      name="chapterId"
-                      v-model="chapterId"
-                      class="w-full rounded border bg-transparent px-4 py-3 font-normal leading-tight hover:cursor-pointer focus:outline-none"
+                      name="characterName"
+                      v-model="characterName"
+                      class="w-full rounded border bg-transparent px-4 py-3 font-normal leading-tight focus:outline-none"
                       :class="
-                        errors?.chapterId ? 'border-red-500' : 'border-gray-600'
+                        errors.characterName
+                          ? 'border-red-500'
+                          : 'border-gray-600'
                       "
-                      placeholder="Chapter"
-                    >
-                      <option value="" disabled>Select a chapter</option>
-                      <option
-                        v-for="chapter in chapters"
-                        :key="chapter.id"
-                        :value="chapter.id"
-                      >
-                        {{ chapter.chapterTitle }}
-                      </option>
-                    </select>
+                      placeholder="Character Name"
+                    />
 
                     <p
-                      v-if="errors?.chapterId"
+                      v-if="errors?.characterName"
                       class="mt-2 text-sm font-light text-red-500"
                     >
-                      {{ errors?.chapterId }}
+                      {{ errors?.characterName }}
                     </p>
                   </div>
                   <div class="w-full">
                     <select
-                      id="characterId"
+                      id="role"
                       type="text"
-                      name="characterId"
-                      v-model="characterId"
+                      name="role"
+                      v-model="role"
                       class="w-full rounded border bg-transparent px-4 py-3 font-normal leading-tight hover:cursor-pointer focus:outline-none"
                       :class="
-                        errors?.characterId
-                          ? 'border-red-500'
-                          : 'border-gray-600'
+                        errors?.role ? 'border-red-500' : 'border-gray-600'
                       "
                       placeholder="Character"
                     >
-                      <option value="" disabled>Select a character</option>
-                      <option
-                        v-for="character in characters"
-                        :key="character.id"
-                        :value="character.id"
-                      >
-                        {{ character.characterName }}
+                      <option value="" disabled>Select a role</option>
+                      <option value="LIBRARIAN">LIBRARIAN</option>
+                      <option value="GUIDE">GUIDE</option>
+                      <option value="MAYOR">MAYOR</option>
+                      <option value="HISTORIAN_PROFESSOR">
+                        HISTORIAN_PROFESSOR
                       </option>
                     </select>
 
                     <p
-                      v-if="errors?.characterId"
+                      v-if="errors?.role"
                       class="mt-2 text-sm font-light text-red-500"
                     >
-                      {{ errors?.characterId }}
+                      {{ errors?.role }}
                     </p>
                   </div>
                   <div class="w-full">
                     <textarea
-                      id="chapterTitle"
+                      id="characterBackstory"
                       type="text"
-                      name="chapterTitle"
-                      v-model="message"
+                      name="characterBackstory"
+                      v-model="characterBackstory"
                       :rows="5"
                       class="w-full rounded border bg-transparent px-4 py-3 font-normal leading-tight focus:outline-none"
                       :class="
-                        errors?.message ? 'border-red-500' : 'border-gray-600'
+                        errors?.characterBackstory
+                          ? 'border-red-500'
+                          : 'border-gray-600'
                       "
-                      placeholder="Message"
+                      placeholder="Character Backstory"
                     ></textarea>
 
                     <p
-                      v-if="errors?.message"
+                      v-if="errors?.characterBackstory"
                       class="mt-1 text-sm font-light text-red-500"
                     >
-                      {{ errors?.message }}
+                      {{ errors?.characterBackstory }}
                     </p>
                   </div>
                 </div>
@@ -206,27 +192,27 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { type CHARACTER_ROLE } from "~/src/types/amplify";
 
-const isLoading = ref(false);
+const isLoading = ref(true);
 const pending = ref(false);
 const errors = ref<any>({});
 
-const chapterId = ref("");
-const characterId = ref("");
-const message = ref("");
+const characterName = ref("");
+const role = ref<CHARACTER_ROLE>();
+const characterBackstory = ref("");
 const store = useStatesStore();
 
 const chapters = computed(() => store.chapters);
 const characters = computed(() => store.characters);
 
-const conversations = computed(() => store.characterConversations);
-
 onMounted(async () => {
   if (characters.value.length == 0) {
-    isLoading.value = true;
     store.listCharacters().then(() => {
       isLoading.value = false;
     });
+  } else {
+    isLoading.value = false;
   }
 
   if (chapters.value.length === 0) {
@@ -238,25 +224,25 @@ onMounted(async () => {
 });
 
 const handleCreate = async () => {
-  if (!chapterId.value || !message.value || !characterId.value) {
-    if (!chapterId.value) {
-      errors.value.chapterId = "Required!";
+  if (!characterName.value || !characterBackstory.value || !role.value) {
+    if (!characterName.value) {
+      errors.value.characterName = "Required!";
     }
-    if (!characterId.value) {
-      errors.value.characterId = "Required!";
+    if (!role.value) {
+      errors.value.role = "Required!";
     }
-    if (!message.value) {
-      errors.value.message = "Required!";
+    if (!characterBackstory.value) {
+      errors.value.characterBackstory = "Required!";
     }
     return;
   }
 
   pending.value = true;
   store
-    .handleCreateConversation({
-      chapterId: chapterId.value,
-      characterId: characterId.value,
-      message: message.value,
+    .handleCreateCharacter({
+      characterName: characterName.value,
+      role: role.value,
+      characterBackstory: characterBackstory.value,
     })
     .then(() => {
       pending.value = false;

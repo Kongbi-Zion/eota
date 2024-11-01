@@ -1,15 +1,15 @@
 <template>
-  <div class="h-full w-full overflow-x-hidden text-gray-50">
+  <div class="h-full w-full overflow-x-hidden text-gray-400">
     <div class="flex justify-center px-5 py-24 md:py-32">
       <div class="w-full max-w-screen-xl md:px-5">
         <div>
-          <h1 class="mb-5 text-lg font-bold">Chapters</h1>
+          <h1 class="mb-5 text-lg font-bold text-gray-50">Chapters</h1>
           <div class="gap-5 max-md:space-y-8 md:flex">
             <div
               class="no-scrollbar h-full min-h-[70vh] w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-2/3"
             >
               <div class="h-full w-full overflow-y-auto">
-                <div v-if="chapters.length != 0" class="w-full space-y-5">
+                <div class="w-full space-y-5">
                   <div
                     v-for="chapter in chapters"
                     :key="chapter.id"
@@ -22,51 +22,34 @@
                     </NuxtLink>
                   </div>
                 </div>
-                <div v-else>
-                  <div v-if="!isLoading && chapters.length == 0">
-                    Looks like it's empty here! Use the form on the right to
-                    start adding chapters.
-                  </div>
-                  <div v-else>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-5"
-                      viewBox="0 0 24 24"
-                    >
-                      <g>
-                        <circle cx="3" cy="12" r="2" fill="currentColor" />
-                        <circle cx="21" cy="12" r="2" fill="currentColor" />
-                        <circle cx="12" cy="21" r="2" fill="currentColor" />
-                        <circle cx="12" cy="3" r="2" fill="currentColor" />
-                        <circle cx="5.64" cy="5.64" r="2" fill="currentColor" />
-                        <circle
-                          cx="18.36"
-                          cy="18.36"
-                          r="2"
-                          fill="currentColor"
-                        />
-                        <circle
-                          cx="5.64"
-                          cy="18.36"
-                          r="2"
-                          fill="currentColor"
-                        />
-                        <circle
-                          cx="18.36"
-                          cy="5.64"
-                          r="2"
-                          fill="currentColor"
-                        />
-                        <animateTransform
-                          attributeName="transform"
-                          dur="1.5s"
-                          repeatCount="indefinite"
-                          type="rotate"
-                          values="0 12 12;360 12 12"
-                        />
-                      </g>
-                    </svg>
-                  </div>
+                <div v-if="!isLoading && chapters.length == 0">
+                  Looks like it's empty here! Use the form on the right to start
+                  adding chapters.
+                </div>
+                <div v-if="isLoading">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5"
+                    viewBox="0 0 24 24"
+                  >
+                    <g>
+                      <circle cx="3" cy="12" r="2" fill="currentColor" />
+                      <circle cx="21" cy="12" r="2" fill="currentColor" />
+                      <circle cx="12" cy="21" r="2" fill="currentColor" />
+                      <circle cx="12" cy="3" r="2" fill="currentColor" />
+                      <circle cx="5.64" cy="5.64" r="2" fill="currentColor" />
+                      <circle cx="18.36" cy="18.36" r="2" fill="currentColor" />
+                      <circle cx="5.64" cy="18.36" r="2" fill="currentColor" />
+                      <circle cx="18.36" cy="5.64" r="2" fill="currentColor" />
+                      <animateTransform
+                        attributeName="transform"
+                        dur="1.5s"
+                        repeatCount="indefinite"
+                        type="rotate"
+                        values="0 12 12;360 12 12"
+                      />
+                    </g>
+                  </svg>
                 </div>
               </div>
             </div>
@@ -75,7 +58,7 @@
               class="max-h-fit w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-1/3"
             >
               <div class="w-full">
-                <div class="mb-6 text-center text-lg font-bold">
+                <div class="mb-6 text-center text-lg font-bold text-gray-50">
                   <p>Create chapter</p>
                 </div>
 
@@ -143,7 +126,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const isLoading = ref(false);
+const isLoading = ref(true);
 const pending = ref(false);
 const error = ref("");
 
@@ -153,10 +136,11 @@ const chapters = computed(() => store.chapters);
 
 onMounted(async () => {
   if (chapters.value.length == 0) {
-    isLoading.value = true;
     store.listChapters().then(() => {
       isLoading.value = false;
     });
+  } else {
+    isLoading.value = false;
   }
 });
 
