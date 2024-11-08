@@ -3,6 +3,7 @@ import {
   createChapter,
   createCharacter,
   createConversation,
+  createConversationPuzzle,
 } from "~/src/graphql/mutations";
 import { generateClient } from "aws-amplify/api";
 import {
@@ -12,12 +13,21 @@ import {
   type CreateConversationInput,
   type Conversation,
   type CreateCharacterInput,
+  type Option,
+  type Puzzle,
+  type CreatePuzzleInput,
 } from "~/src/types/amplify";
 import {
+  getChapter,
   getChapters,
   getCharacter,
   getCharacterConversations,
   getCharacters,
+  getConversation,
+  getConversationOptions,
+  getConversations,
+  getPuzzle,
+  getPuzzles,
 } from "~/src/graphql/queries";
 export const useStatesStore = defineStore("states", () => {
   // Types =====================
@@ -25,12 +35,29 @@ export const useStatesStore = defineStore("states", () => {
     characterId: string;
     conversations: Conversation[];
   };
+  type conversationOptionsCashType = {
+    conversationId: string;
+    options: Option[];
+  };
+
+  type Conversations = Conversation & {
+    characterName: string;
+    characterBackstory: string;
+  };
+  type Puzzles = Puzzle & {
+    chapterTitle: string;
+  };
 
   // State =====================
   const client = generateClient();
   const chapters = ref<Chapter[]>([]);
   const characters = ref<Character[]>([]);
   const characterConversationsCash = ref<CharacterConversationsCashType[]>([]);
+  const conversationsOptionsCash = ref<conversationOptionsCashType[]>([]);
+  const conversations = ref<Conversations[]>([]);
+  const options = ref<Option[]>([]);
+  const puzzles = ref<Puzzles[]>([]);
+  const conversation = ref<Conversation>();
 
   // Actions ====================
 
@@ -65,7 +92,36 @@ export const useStatesStore = defineStore("states", () => {
       return { success: false, error: error };
     }
   };
-  const handleCreateConversation = async (
+  const handleCreateConversation = async (input: CreateConversationInput) => {
+    try {
+      const result = await client.graphql({
+        query: createConversation,
+        variables: {
+          input,
+        },
+      });
+
+      const character = await client.graphql({
+        query: getCharacter,
+        variables: {
+          characterId: input.characterId,
+        },
+      });
+      if (character) {
+        conversations.value.push({
+          ...result.data.createConversation,
+          characterName: character.data.getCharacter.characterName,
+          characterBackstory: character.data.getCharacter.characterBackstory,
+        });
+      }
+
+      return { success: true, user: result.data.createConversation };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
+  const handleCreateCharacterConversation = async (
     input: CreateConversationInput,
     characterId: string,
     index: number,
@@ -92,8 +148,76 @@ export const useStatesStore = defineStore("states", () => {
       return { success: false, error: error };
     }
   };
+  const handleCreateConversationOption = async (
+    input: CreateConversationInput,
+    characterId: string,
+    index: number,
+  ) => {
+    try {
+      const result = await client.graphql({
+        query: createConversation,
+        variables: {
+          input,
+        },
+      });
+      if (characterId == result.data.createConversation.characterId) {
+        characterConversationsCash.value.push({
+          characterId,
+          conversations: [
+            ...characterConversationsCash.value[index]?.conversations,
+            result.data.createConversation,
+          ],
+        });
+      }
+      return { success: true, user: result.data.createConversation };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
+  const handleCreatePuzzle = async (input: CreatePuzzleInput) => {
+    try {
+      const result = await client.graphql({
+        query: createConversationPuzzle,
+        variables: {
+          input,
+        },
+      });
+
+      const chapter = await client.graphql({
+        query: getChapter,
+        variables: {
+          chapterId: result.data.createConversationPuzzle.chapterId,
+        },
+      });
+
+      puzzles.value.push({
+        ...result.data.createConversationPuzzle,
+        chapterTitle: chapter.data.getChapter.chapterTitle,
+      });
+      return { success: true, puzzle: result.data.createConversationPuzzle };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
 
   // get
+  const handleGetConversation = async (conversationId: string) => {
+    try {
+      const result = await client.graphql({
+        query: getConversation,
+        variables: {
+          conversationId,
+        },
+      });
+      conversation.value = result.data.getConversation;
+      return { success: true, conversation: result.data.getConversation };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
 
   // list
   const listCharacterConversations = async (characterId: string) => {
@@ -102,7 +226,7 @@ export const useStatesStore = defineStore("states", () => {
         query: getCharacterConversations,
         variables: {
           characterId: characterId,
-          limit: 10,
+          limit: 100,
         },
       });
 
@@ -157,16 +281,144 @@ export const useStatesStore = defineStore("states", () => {
       return { success: false, error: error };
     }
   };
+  const listConversations = async () => {
+    try {
+      const convers = [];
+      const result = await client.graphql({
+        query: getConversations,
+        variables: {
+          limit: 100,
+        },
+      });
+
+      for (const conversation of result.data.getConversations.items) {
+        const character = await client.graphql({
+          query: getCharacter,
+          variables: {
+            characterId: conversation.characterId,
+          },
+        });
+        convers.push({
+          ...conversation,
+          characterName: character.data.getCharacter.characterName,
+          characterBackstory: character.data.getCharacter.characterBackstory,
+        });
+      }
+
+      conversations.value = convers;
+      return { success: true, conversations: conversations.value };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
+  const listConversationOptions = async (conversationId: string) => {
+    try {
+      handleGetConversation(conversationId);
+
+      const result = await client.graphql({
+        query: getConversationOptions,
+        variables: {
+          conversationId: conversationId,
+        },
+      });
+
+      conversationsOptionsCash.value.push({
+        conversationId,
+        options: result.data.getConversationOptions.items,
+      });
+
+      return {
+        success: true,
+        options: result.data.getConversationOptions.items,
+      };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
+
+  const listPuzzles = async () => {
+    try {
+      const puzs = [];
+      const result = await client.graphql({
+        query: getPuzzles,
+        variables: {
+          limit: 100,
+        },
+      });
+
+      for (const puzzle of result.data.getPuzzles.items) {
+        const chapter = await client.graphql({
+          query: getChapter,
+          variables: {
+            chapterId: puzzle.chapterId,
+          },
+        });
+        puzs.push({
+          ...puzzle,
+          chapterTitle: chapter.data.getChapter.chapterTitle,
+        });
+      }
+
+      puzzles.value = puzs;
+      return { success: true, conversations: conversations.value };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
+
+  const listRelics = async () => {
+    try {
+      const ops = [];
+      const result = await client.graphql({
+        query: getConversationOptions,
+      });
+
+      console.log("result: ", result);
+
+      // for (const conversation of result.data.getConversationOptions.items) {
+      //   const character = await client.graphql({
+      //     query: getCharacter,
+      //     variables: {
+      //       characterId: conversation.characterId,
+      //     },
+      //   });
+      //   convers.push({
+      //     ...conversation,
+      //     characterName: character.data.getCharacter.characterName,
+      //     characterBackstory: character.data.getCharacter.characterBackstory,
+      //   });
+      // }
+
+      // conversations.value = convers;
+      return { success: true, conversations: conversations.value };
+    } catch (error) {
+      console.log("error: ", error);
+      return { success: false, error: error };
+    }
+  };
 
   return {
     chapters,
     characters,
+    puzzles,
+    handleCreatePuzzle,
+    listPuzzles,
     listChapters,
+    conversations,
+    conversation,
+    listRelics,
+    listConversationOptions,
     listCharacters,
-    characterConversationsCash,
-    handleCreateCharacter,
+    listConversations,
     handleCreateChapter,
+    handleCreateCharacter,
     handleCreateConversation,
+    characterConversationsCash,
+    conversationsOptionsCash,
     listCharacterConversations,
+    handleCreateCharacterConversation,
   };
 });

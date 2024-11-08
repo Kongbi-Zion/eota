@@ -89,6 +89,8 @@ export type CreateConversationInput = {
   message: string;
   chapterId: string;
   characterId: string;
+  hasOptions: boolean;
+  firstConversation: boolean;
 };
 
 export type Conversation = {
@@ -98,6 +100,18 @@ export type Conversation = {
   conversationId: string;
   chapterId: string;
   characterId: string;
+  hasOptions: boolean;
+  firstConversation: boolean;
+  options?: Array<Option> | null;
+};
+
+export type UpdateConversationInput = {
+  id: string;
+  message: string;
+  firstConversation: boolean;
+  chapterId?: string | null;
+  characterId?: string | null;
+  hasOptions?: boolean | null;
 };
 
 export type CreateChapterInput = {
@@ -114,6 +128,8 @@ export type CreateCharacterInput = {
   characterName: string;
   characterBackstory: string;
   role: CHARACTER_ROLE;
+  baseHealth?: number | null;
+  baseMana?: number | null;
 };
 
 export enum CHARACTER_ROLE {
@@ -129,17 +145,28 @@ export type Character = {
   characterName: string;
   characterBackstory: string;
   role: CHARACTER_ROLE;
+  baseHealth?: number | null;
+  baseMana?: number | null;
   conversation?: Array<Conversation> | null;
 };
 
 export type OptionInput = {
+  gameState: GAMESTATE;
   nextStepType: string;
-  conversationId: string;
+  conversationId?: string | null;
+  optionId?: string | null;
 };
 
-export type NotifyOptionResponseInput = {
+export enum GAMESTATE {
+  NEW = "NEW",
+  CONTINUE = "CONTINUE",
+}
+
+export type ConversationResponseInput = {
   id: string;
   conversationType: CONVERSATIONTYPE;
+  firstConversation: boolean;
+  hasOptions: boolean;
   imageUrl?: string | null;
   relicId?: string | null;
   puzzleId?: string | null;
@@ -154,6 +181,8 @@ export type ConversationResponse = {
   conversationType: CONVERSATIONTYPE;
   imageUrl?: string | null;
   relicId?: string | null;
+  hasOptions?: boolean | null;
+  firstConversation?: boolean | null;
   puzzleId?: string | null;
   message?: string | null;
   characterId?: string | null;
@@ -268,6 +297,47 @@ export type CreateConversationMutation = {
     conversationId: string;
     chapterId: string;
     characterId: string;
+    hasOptions: boolean;
+    firstConversation: boolean;
+    options?: Array<{
+      __typename: "Option";
+      id: string;
+      optionId: string;
+      relicId?: string | null;
+      puzzleId?: string | null;
+      conversationId: string;
+      nextConversationId: string;
+      nextStepType: CONVERSATIONTYPE;
+      optionText: string;
+    }> | null;
+  };
+};
+
+export type UpdateConversationMutationVariables = {
+  input: UpdateConversationInput;
+};
+
+export type UpdateConversationMutation = {
+  updateConversation: {
+    __typename: "Conversation";
+    id: string;
+    message: string;
+    conversationId: string;
+    chapterId: string;
+    characterId: string;
+    hasOptions: boolean;
+    firstConversation: boolean;
+    options?: Array<{
+      __typename: "Option";
+      id: string;
+      optionId: string;
+      relicId?: string | null;
+      puzzleId?: string | null;
+      conversationId: string;
+      nextConversationId: string;
+      nextStepType: CONVERSATIONTYPE;
+      optionText: string;
+    }> | null;
   };
 };
 
@@ -294,6 +364,8 @@ export type CreateCharacterMutation = {
     characterName: string;
     characterBackstory: string;
     role: CHARACTER_ROLE;
+    baseHealth?: number | null;
+    baseMana?: number | null;
     conversation?: Array<{
       __typename: "Conversation";
       id: string;
@@ -301,6 +373,8 @@ export type CreateCharacterMutation = {
       conversationId: string;
       chapterId: string;
       characterId: string;
+      hasOptions: boolean;
+      firstConversation: boolean;
     }> | null;
   };
 };
@@ -313,17 +387,19 @@ export type SendOptionMutation = {
   sendOption: boolean;
 };
 
-export type NotifyOptionResponseMutationVariables = {
-  input: NotifyOptionResponseInput;
+export type NotifyConversationResponseMutationVariables = {
+  input: ConversationResponseInput;
 };
 
-export type NotifyOptionResponseMutation = {
-  notifyOptionResponse: {
+export type NotifyConversationResponseMutation = {
+  notifyConversationResponse: {
     __typename: "ConversationResponse";
     id: string;
     conversationType: CONVERSATIONTYPE;
     imageUrl?: string | null;
     relicId?: string | null;
+    hasOptions?: boolean | null;
+    firstConversation?: boolean | null;
     puzzleId?: string | null;
     message?: string | null;
     characterId?: string | null;
@@ -356,6 +432,8 @@ export type GetCharacterConversationsQuery = {
       conversationId: string;
       chapterId: string;
       characterId: string;
+      hasOptions: boolean;
+      firstConversation: boolean;
     }>;
   };
 };
@@ -377,6 +455,30 @@ export type GetChapterConversationsQuery = {
       conversationId: string;
       chapterId: string;
       characterId: string;
+      hasOptions: boolean;
+      firstConversation: boolean;
+    }>;
+  };
+};
+
+export type GetConversationsQueryVariables = {
+  limit: number;
+  nextToken?: string | null;
+};
+
+export type GetConversationsQuery = {
+  getConversations: {
+    __typename: "Conversations";
+    nextToken?: string | null;
+    items: Array<{
+      __typename: "Conversation";
+      id: string;
+      message: string;
+      conversationId: string;
+      chapterId: string;
+      characterId: string;
+      hasOptions: boolean;
+      firstConversation: boolean;
     }>;
   };
 };
@@ -483,6 +585,8 @@ export type GetCharacterQuery = {
     characterName: string;
     characterBackstory: string;
     role: CHARACTER_ROLE;
+    baseHealth?: number | null;
+    baseMana?: number | null;
     conversation?: Array<{
       __typename: "Conversation";
       id: string;
@@ -490,6 +594,8 @@ export type GetCharacterQuery = {
       conversationId: string;
       chapterId: string;
       characterId: string;
+      hasOptions: boolean;
+      firstConversation: boolean;
     }> | null;
   };
 };
@@ -505,19 +611,51 @@ export type GetCharactersQuery = {
       characterName: string;
       characterBackstory: string;
       role: CHARACTER_ROLE;
+      baseHealth?: number | null;
+      baseMana?: number | null;
     }>;
   };
 };
 
-export type OnOptionResponseSubscriptionVariables = {};
+export type GetConversationQueryVariables = {
+  conversationId?: string | null;
+};
 
-export type OnOptionResponseSubscription = {
-  onOptionResponse?: {
+export type GetConversationQuery = {
+  getConversation: {
+    __typename: "Conversation";
+    id: string;
+    message: string;
+    conversationId: string;
+    chapterId: string;
+    characterId: string;
+    hasOptions: boolean;
+    firstConversation: boolean;
+    options?: Array<{
+      __typename: "Option";
+      id: string;
+      optionId: string;
+      relicId?: string | null;
+      puzzleId?: string | null;
+      conversationId: string;
+      nextConversationId: string;
+      nextStepType: CONVERSATIONTYPE;
+      optionText: string;
+    }> | null;
+  };
+};
+
+export type OnNotifyConversationResponseSubscriptionVariables = {};
+
+export type OnNotifyConversationResponseSubscription = {
+  onNotifyConversationResponse?: {
     __typename: "ConversationResponse";
     id: string;
     conversationType: CONVERSATIONTYPE;
     imageUrl?: string | null;
     relicId?: string | null;
+    hasOptions?: boolean | null;
+    firstConversation?: boolean | null;
     puzzleId?: string | null;
     message?: string | null;
     characterId?: string | null;

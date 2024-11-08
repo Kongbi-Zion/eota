@@ -85,12 +85,53 @@ export const createConversation =
     conversationId
     chapterId
     characterId
+    hasOptions
+    firstConversation
+    options {
+      id
+      optionId
+      relicId
+      puzzleId
+      conversationId
+      nextConversationId
+      nextStepType
+      optionText
+      __typename
+    }
     __typename
   }
 }
 ` as GeneratedMutation<
     APITypes.CreateConversationMutationVariables,
     APITypes.CreateConversationMutation
+  >;
+export const updateConversation =
+  /* GraphQL */ `mutation UpdateConversation($input: UpdateConversationInput!) {
+  updateConversation(input: $input) {
+    id
+    message
+    conversationId
+    chapterId
+    characterId
+    hasOptions
+    firstConversation
+    options {
+      id
+      optionId
+      relicId
+      puzzleId
+      conversationId
+      nextConversationId
+      nextStepType
+      optionText
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<
+    APITypes.UpdateConversationMutationVariables,
+    APITypes.UpdateConversationMutation
   >;
 export const createChapter =
   /* GraphQL */ `mutation CreateChapter($input: CreateChapterInput!) {
@@ -111,12 +152,16 @@ export const createCharacter =
     characterName
     characterBackstory
     role
+    baseHealth
+    baseMana
     conversation {
       id
       message
       conversationId
       chapterId
       characterId
+      hasOptions
+      firstConversation
       __typename
     }
     __typename
@@ -134,13 +179,15 @@ export const sendOption =
     APITypes.SendOptionMutationVariables,
     APITypes.SendOptionMutation
   >;
-export const notifyOptionResponse =
-  /* GraphQL */ `mutation NotifyOptionResponse($input: NotifyOptionResponseInput!) {
-  notifyOptionResponse(input: $input) {
+export const notifyConversationResponse =
+  /* GraphQL */ `mutation NotifyConversationResponse($input: ConversationResponseInput!) {
+  notifyConversationResponse(input: $input) {
     id
     conversationType
     imageUrl
     relicId
+    hasOptions
+    firstConversation
     puzzleId
     message
     characterId
@@ -149,6 +196,6 @@ export const notifyOptionResponse =
   }
 }
 ` as GeneratedMutation<
-    APITypes.NotifyOptionResponseMutationVariables,
-    APITypes.NotifyOptionResponseMutation
+    APITypes.NotifyConversationResponseMutationVariables,
+    APITypes.NotifyConversationResponseMutation
   >;

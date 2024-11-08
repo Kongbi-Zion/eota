@@ -8,12 +8,15 @@ type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionOutput: OutputType;
 };
 
-export const onOptionResponse = /* GraphQL */ `subscription OnOptionResponse {
-  onOptionResponse {
+export const onNotifyConversationResponse =
+  /* GraphQL */ `subscription OnNotifyConversationResponse {
+  onNotifyConversationResponse {
     id
     conversationType
     imageUrl
     relicId
+    hasOptions
+    firstConversation
     puzzleId
     message
     characterId
@@ -22,6 +25,6 @@ export const onOptionResponse = /* GraphQL */ `subscription OnOptionResponse {
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnOptionResponseSubscriptionVariables,
-  APITypes.OnOptionResponseSubscription
->;
+    APITypes.OnNotifyConversationResponseSubscriptionVariables,
+    APITypes.OnNotifyConversationResponseSubscription
+  >;

@@ -3,33 +3,32 @@
     <div class="flex justify-center px-5 py-24 md:py-32">
       <div class="w-full max-w-screen-xl md:px-5">
         <div>
-          <h1 class="mb-5 text-lg font-bold text-gray-50">Conversations</h1>
+          <h1 class="mb-5 text-lg font-bold text-gray-50">
+            {{ characters[index2]?.characterName }}
+          </h1>
+
           <div class="gap-5 max-md:space-y-8 md:flex">
             <div
               class="no-scrollbar h-full min-h-[70vh] w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-2/3"
             >
               <div class="h-full w-full overflow-y-auto">
+                <p class="pb-4">Conversation Options:</p>
                 <div class="w-full space-y-5">
                   <div
-                    v-for="conversation in conversations"
-                    :key="conversation.id"
+                    v-for="option in options[index2]?.options"
+                    :key="option.id"
                     class="rounded-lg border border-gray-600 px-5 py-3"
                   >
-                    <NuxtLink
-                      :to="`/conversation-options/${conversation.id}`"
-                      class="space-y-2"
-                    >
+                    <NuxtLink :to="`/options/${option.id}`">
                       <p>
-                        <span class="text-gray-50">Character name: </span
-                        >{{ conversation.characterName }}
+                        <!-- {{ option.message }} -->
                       </p>
-                      <p>{{ conversation.message }}</p>
                     </NuxtLink>
                   </div>
                 </div>
-                <div v-if="!isLoading && characters.length == 0">
+                <div v-if="!isLoading && options[index2]?.options.length == 0">
                   Looks like it's empty here! Use the form on the right to start
-                  adding characters.
+                  adding conversation options.
                 </div>
                 <svg
                   v-if="isLoading"
@@ -80,7 +79,7 @@
                 <div
                   class="mb-7 mt-2 text-center text-lg font-bold text-gray-50"
                 >
-                  <p>Add conversation</p>
+                  <p>Add conversation option</p>
                 </div>
 
                 <div class="mb-2 flex w-full flex-wrap space-y-5">
@@ -129,11 +128,11 @@
                     >
                       <option value="" disabled>Select a character</option>
                       <option
-                        v-for="conversation in characters"
-                        :key="conversation.id"
-                        :value="conversation.id"
+                        v-for="character in characters"
+                        :key="character.id"
+                        :value="character.id"
                       >
-                        {{ conversation.characterName }}
+                        {{ character.characterName }}
                       </option>
                     </select>
 
@@ -265,21 +264,32 @@ const isLoading = ref(true);
 const pending = ref(false);
 const errors = ref<any>({});
 
-const store = useStatesStore();
-
 const chapterId = ref("");
+const currentConversationId = useRoute().params.conversationId as string;
 const characterId = ref("");
-const message = ref("");
 const hasOptions = ref(true);
 const firstConversation = ref(false);
+characterId.value = currentConversationId;
+const message = ref("");
+const store = useStatesStore();
 
 const chapters = computed(() => store.chapters);
 const characters = computed(() => store.characters);
-const conversations = computed(() => store.conversations);
+
+const options = computed(() => store.conversationsOptionsCash);
+
+const index = ref(-1);
+const index2 = ref(-1);
+
+console.log("yesssssssssssssssssss");
 
 onMounted(async () => {
-  if (conversations.value.length == 0) {
-    store.listConversations().then(() => {
+  index.value = options.value.findIndex(
+    (el: any) => el.conversationId === currentConversationId,
+  );
+
+  if (index.value == -1) {
+    store.listConversationOptions(currentConversationId).then(() => {
       isLoading.value = false;
     });
   } else {
@@ -290,8 +300,16 @@ onMounted(async () => {
     store.listChapters();
   }
   if (characters.value.length === 0) {
-    store.listCharacters();
+    store.listCharacters().then(() => {
+      index2.value = characters.value.findIndex(
+        (el: any) => el.id === currentConversationId,
+      );
+    });
   }
+
+  index2.value = characters.value.findIndex(
+    (el: any) => el.id === currentConversationId,
+  );
 });
 
 const handleCreate = async () => {
@@ -310,17 +328,19 @@ const handleCreate = async () => {
 
   pending.value = true;
   store
-    .handleCreateConversation({
-      chapterId: chapterId.value,
-      characterId: characterId.value,
-      message: message.value,
-      hasOptions: hasOptions.value,
-      firstConversation: firstConversation.value,
-    })
+    .handleCreateCharacterConversation(
+      {
+        chapterId: chapterId.value,
+        characterId: characterId.value,
+        message: message.value,
+        hasOptions: hasOptions.value,
+        firstConversation: firstConversation.value,
+      },
+      currentConversationId,
+      index.value,
+    )
     .then(() => {
       pending.value = false;
     });
 };
 </script>
-
-<style scoped></style>

@@ -30,6 +30,8 @@ export const getCharacterConversations =
       conversationId
       chapterId
       characterId
+      hasOptions
+      firstConversation
       __typename
     }
     __typename
@@ -57,6 +59,8 @@ export const getChapterConversations =
       conversationId
       chapterId
       characterId
+      hasOptions
+      firstConversation
       __typename
     }
     __typename
@@ -65,6 +69,27 @@ export const getChapterConversations =
 ` as GeneratedQuery<
     APITypes.GetChapterConversationsQueryVariables,
     APITypes.GetChapterConversationsQuery
+  >;
+export const getConversations =
+  /* GraphQL */ `query GetConversations($limit: Int!, $nextToken: String) {
+  getConversations(limit: $limit, nextToken: $nextToken) {
+    nextToken
+    items {
+      id
+      message
+      conversationId
+      chapterId
+      characterId
+      hasOptions
+      firstConversation
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedQuery<
+    APITypes.GetConversationsQueryVariables,
+    APITypes.GetConversationsQuery
   >;
 export const getPuzzle = /* GraphQL */ `query GetPuzzle($puzzleId: String!) {
   getPuzzle(puzzleId: $puzzleId) {
@@ -157,12 +182,16 @@ export const getCharacter =
     characterName
     characterBackstory
     role
+    baseHealth
+    baseMana
     conversation {
       id
       message
       conversationId
       chapterId
       characterId
+      hasOptions
+      firstConversation
       __typename
     }
     __typename
@@ -179,6 +208,8 @@ export const getCharacters = /* GraphQL */ `query GetCharacters {
       characterName
       characterBackstory
       role
+      baseHealth
+      baseMana
       __typename
     }
     __typename
@@ -188,3 +219,31 @@ export const getCharacters = /* GraphQL */ `query GetCharacters {
   APITypes.GetCharactersQueryVariables,
   APITypes.GetCharactersQuery
 >;
+export const getConversation =
+  /* GraphQL */ `query GetConversation($conversationId: String) {
+  getConversation(conversationId: $conversationId) {
+    id
+    message
+    conversationId
+    chapterId
+    characterId
+    hasOptions
+    firstConversation
+    options {
+      id
+      optionId
+      relicId
+      puzzleId
+      conversationId
+      nextConversationId
+      nextStepType
+      optionText
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedQuery<
+    APITypes.GetConversationQueryVariables,
+    APITypes.GetConversationQuery
+  >;

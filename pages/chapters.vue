@@ -9,17 +9,17 @@
               class="no-scrollbar h-full min-h-[70vh] w-full overflow-y-auto rounded border border-gray-600 p-5 md:w-2/3"
             >
               <div class="h-full w-full overflow-y-auto">
-                <div class="w-full space-y-5">
+                <div v-if="chapters.length != 0" class="w-full space-y-5">
                   <div
                     v-for="chapter in chapters"
                     :key="chapter.id"
                     class="rounded-lg border border-gray-600 px-5 py-3"
                   >
-                    <NuxtLink :to="`/conversation/${chapter.id}`">
+                    <div>
                       <p>
                         {{ chapter.chapterTitle }}
                       </p>
-                    </NuxtLink>
+                    </div>
                   </div>
                 </div>
                 <div v-if="!isLoading && chapters.length == 0">
@@ -59,7 +59,7 @@
             >
               <div class="w-full">
                 <div class="mb-6 text-center text-lg font-bold text-gray-50">
-                  <p>Create chapter</p>
+                  <p>Add chapter</p>
                 </div>
 
                 <div class="mb-2 flex w-full flex-wrap space-y-2">

@@ -19,7 +19,7 @@
                     :key="conversation.id"
                     class="rounded-lg border border-gray-600 px-5 py-3"
                   >
-                    <NuxtLink :to="`/options/${conversation.id}`">
+                    <NuxtLink :to="`/conversation-options/${conversation.id}`">
                       <p>
                         {{ conversation.message }}
                       </p>
@@ -149,6 +149,56 @@
                     </p>
                   </div>
                   <div class="w-full">
+                    <select
+                      id="hasOptions"
+                      type="text"
+                      name="hasOptions"
+                      v-model="hasOptions"
+                      class="w-full rounded border bg-transparent px-4 py-3 font-normal leading-tight hover:cursor-pointer focus:outline-none"
+                      :class="
+                        errors?.hasOptions
+                          ? 'border-red-500'
+                          : 'border-gray-600'
+                      "
+                      placeholder="Character"
+                    >
+                      <option :value="false">False</option>
+                      <option :value="true">True</option>
+                    </select>
+
+                    <p
+                      v-if="errors?.hasOptions"
+                      class="mt-2 text-sm font-light text-red-500"
+                    >
+                      {{ errors?.hasOptions }}
+                    </p>
+                  </div>
+                  <div class="w-full">
+                    <select
+                      id="firstConversation"
+                      type="text"
+                      name="firstConversation"
+                      v-model="firstConversation"
+                      class="w-full rounded border bg-transparent px-4 py-3 font-normal leading-tight hover:cursor-pointer focus:outline-none"
+                      :class="
+                        errors?.firstConversation
+                          ? 'border-red-500'
+                          : 'border-gray-600'
+                      "
+                      placeholder="Character"
+                    >
+                      <option :value="false">False</option>
+                      <option :value="true">True</option>
+                    </select>
+
+                    <p
+                      v-if="errors?.firstConversation"
+                      class="mt-2 text-sm font-light text-red-500"
+                    >
+                      {{ errors?.firstConversation }}
+                    </p>
+                  </div>
+                  <div class="w-full">
                     <textarea
                       id="chapterTitle"
                       type="text"
@@ -222,6 +272,8 @@ const errors = ref<any>({});
 const chapterId = ref("");
 const currentCharacterId = useRoute().params.characterId as string;
 const characterId = ref("");
+const hasOptions = ref(true);
+const firstConversation = ref(false);
 characterId.value = currentCharacterId;
 const message = ref("");
 const store = useStatesStore();
@@ -279,11 +331,13 @@ const handleCreate = async () => {
 
   pending.value = true;
   store
-    .handleCreateConversation(
+    .handleCreateCharacterConversation(
       {
         chapterId: chapterId.value,
         characterId: characterId.value,
         message: message.value,
+        hasOptions: hasOptions.value,
+        firstConversation: firstConversation.value,
       },
       currentCharacterId,
       index.value,
